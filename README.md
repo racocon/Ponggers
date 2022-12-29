@@ -16,6 +16,7 @@ Maxwell the cat model is based on ["dingus the cat"](https://sketchfab.com/3d-mo
 ## Gameplay Instructions
 It's a simple pong game at it's core - to play simply use:
 <ul>
-<li>Use A/D or Arrow Left/Right keys to move the Maxwell the cat (He is the paddle)</li>
+<li>Use Arrow Left/Right keys to move the Maxwell the cat (He is the paddle)</li>
 </ul>
-In order to play against another player ask them for their id and input it in the userId box on the ui and click "Challenge User".
+
+In order to play against another player ask them for their id and input it in the userId box on the ui and click "Join".
