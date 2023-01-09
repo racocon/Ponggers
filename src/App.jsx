@@ -78,7 +78,7 @@ function App() {
 
   return (
     <div className="App">
-      <img className="mx-auto pt-8" src="/src/assets/ponggers.png" />
+      <img className="mx-auto pt-8" src="../assets/ponggers.png" />
       {!gameStart && (
         <div>
           {waiting ? (

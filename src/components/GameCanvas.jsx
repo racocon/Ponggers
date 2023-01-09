@@ -37,7 +37,7 @@ export default function GameCanvas({
 
     // Load grass texture
     const grassTexture = new THREE.TextureLoader().load(
-      "/src/assets/grass.png"
+      "../assets/grass.png"
     );
     grassTexture.wrapS = THREE.RepeatWrapping;
     grassTexture.wrapT = THREE.RepeatWrapping;
@@ -45,7 +45,7 @@ export default function GameCanvas({
 
     // Load fence texture
     const fenceTexture = new THREE.TextureLoader().load(
-      "/src/assets/picketfence.png"
+      "../assets/picketfence.png"
     );
     fenceTexture.wrapS = THREE.RepeatWrapping;
     fenceTexture.wrapT = THREE.RepeatWrapping;
@@ -134,7 +134,7 @@ export default function GameCanvas({
     let maxwell;
     const gltfLoader = new GLTFLoader();
 
-    gltfLoader.load("/src/assets/maxwell/scene.gltf", (gltf) => {
+    gltfLoader.load("../assets/maxwell/scene.gltf", (gltf) => {
       maxwell = gltf.scene;
 
       scene.add(maxwell);
@@ -254,7 +254,7 @@ export default function GameCanvas({
     };
     render();
   }, [gameStart]);
-  
+
   return (
       <canvas
         className="mx-auto border-8 border-[#ff4081]"
