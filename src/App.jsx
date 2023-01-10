@@ -78,14 +78,14 @@ function App() {
 
   return (
     <div className="App">
-      <img className="mx-auto pt-8" src="../assets/ponggers.png" />
+      <img className="mx-auto py-8 h-40 w-auto" src="../assets/ponggers.png" />
       {!gameStart && (
         <div>
           {waiting ? (
-            <div className="text-white text-lg py-6 flex justify-around mx-auto">
+            <div className="text-white font-medium text-lg py-6 flex justify-around mx-auto">
               <button
                 id="set-host"
-                className="text-lg border-4 border-[#ff4081] px-4 py-1 active:bg-[#ff4081] active:text-white"
+                className="text-lg border-4 border-white rounded-lg uppercase px-4 py-1 hover:bg-white hover:text-black active:bg-transparent active:text-white"
                 onClick={() => {
                   setHost(true);
                   setWaiting(false);
@@ -96,7 +96,7 @@ function App() {
               <div>
                 <button
                   id="set-join"
-                  className="ml-4 text-lg border-4 border-[#ff4081] px-4 py-1 active:bg-[#ff4081] active:text-white"
+                  className="text-lg border-4 border-white rounded-lg uppercase px-4 py-1 hover:bg-white hover:text-black active:bg-transparent active:text-white"
                   onClick={() => {
                     setHost(false);
                     setWaiting(false);
@@ -107,14 +107,14 @@ function App() {
               </div>
             </div>
           ) : (
-            <div className="text-white text-lg py-6 flex justify-around mx-auto">
+            <div className="text-white font-medium text-lg py-6 flex justify-around mx-auto">
               {host ? (
                 <div>
                   <button
                     id="my-id"
-                    className={`text-lg px-4 py-1 ${
+                    className={`text-lg px-4 py-1 rounded-lg uppercase ${
                       peerId
-                        ? "border-4 border-[#ff4081] active:bg-[#ff4081] active:text-white"
+                        ? "border-4 border-white hover:bg-white hover:text-black active:bg-transparent active:text-white"
                         : "text-white hover:cursor-disabled"
                     }`}
                     disabled={!peerId}
@@ -137,7 +137,7 @@ function App() {
                   />
                   <button
                     id="join-game"
-                    className="ml-4 text-lg border-4 border-[#ff4081] px-4 py-1 active:bg-[#ff4081] active:text-white"
+                    className="ml-4 text-lg border-4 border-white rounded-lg uppercase px-4 py-1 hover:bg-white hover:text-black active:bg-transparent active:text-white"
                     onClick={() => {
                       join(input);
                     }}
@@ -150,7 +150,7 @@ function App() {
           )}
         </div>
       )}
-      // Display game canvas and score when game starts
+      {/* Display game canvas and score when game starts */}
       {gameStart && (
         <div>
           <ScoreDisplay player1={player1} player2={player2} />

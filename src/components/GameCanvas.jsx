@@ -13,32 +13,37 @@ export default function GameCanvas({
     scene.background = new THREE.Color("#74b9ff");
 
     const movement = (model, paddle) => {
-      window.onkeydown = (e) => {
-        switch (e.key) {
-          case "ArrowLeft":
-            {
-              (host ? paddle.position.x > -40 : paddle.position.x < 40) &&
-                ((model.position.x += host ? -2.5 : 2.5),
-                (paddle.position.x += host ? -2.5 : 2.5));
-            }
-            break;
-          case "ArrowRight":
-            {
-              (host ? paddle.position.x < 40 : paddle.position.x > -40) &&
-                ((model.position.x += host ? 2.5 : -2.5),
-                (paddle.position.x += host ? 2.5 : -2.5));
-            }
-            break;
-          default:
-            break;
-        }
+      // window.onkeydown = (e) => {
+      //   switch (e.key) {
+      //     case "ArrowLeft":
+      //       {
+      //         (host ? paddle.position.x > -70 : paddle.position.x < 70) &&
+      //           ((model.position.x += host ? -2.5 : 2.5),
+      //           (paddle.position.x += host ? -2.5 : 2.5));
+      //       }
+      //       break;
+      //     case "ArrowRight":
+      //       {
+      //         (host ? paddle.position.x < 70 : paddle.position.x > -70) &&
+      //           ((model.position.x += host ? 2.5 : -2.5),
+      //           (paddle.position.x += host ? 2.5 : -2.5));
+      //       }
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      // };
+
+      window.onmousemove = (e) => {
+        var mouseX = e.clientX;
+        model.position.x = paddle.position.x = host
+          ? -((width - mouseX) / width) * 100 + 50
+          : ((width - mouseX) / width) * 100 - 50;
       };
     };
 
     // Load grass texture
-    const grassTexture = new THREE.TextureLoader().load(
-      "../assets/grass.png"
-    );
+    const grassTexture = new THREE.TextureLoader().load("../assets/grass.png");
     grassTexture.wrapS = THREE.RepeatWrapping;
     grassTexture.wrapT = THREE.RepeatWrapping;
     grassTexture.repeat.set(2, 2);
@@ -109,9 +114,9 @@ export default function GameCanvas({
     scene.add(wallRight);
     scene.add(wallLeft);
     wallRight.rotation.y = Math.PI / 2;
-    wallRight.position.set(50, 0, -25);
+    wallRight.position.set(80, 0, -25);
     wallLeft.rotation.y = Math.PI / 2;
-    wallLeft.position.set(-50, 0, -25);
+    wallLeft.position.set(-80, 0, -25);
 
     // Ball object
     const ballGeometry = new THREE.SphereGeometry(3, 16, 8);
@@ -123,8 +128,9 @@ export default function GameCanvas({
     // Paddle mesh
     const paddleGeometry = new THREE.BoxGeometry(28, 4, 4);
     const paddleMaterial = new THREE.MeshBasicMaterial({
-      opacity: 0,
-      transparent: true,
+      // opacity: 0,
+      // transparent: true,
+      color: 0xc23616,
     });
 
     const paddle1 = new THREE.Mesh(paddleGeometry, paddleMaterial);
@@ -141,13 +147,13 @@ export default function GameCanvas({
       scene.add(paddle1);
 
       // Player 1 Maxwell
-      maxwell.position.set(0, -5, 50);
+      maxwell.position.set(-2, -5, 50);
       paddle1.position.set(0, 0, 43);
       maxwell.rotation.y = Math.PI - 0.3;
 
       // Player 2 Maxwell
       const maxwell2 = maxwell.clone();
-      maxwell2.position.set(0, -5, -100);
+      maxwell2.position.set(2, -5, -100);
       paddle2.position.set(0, 0, -93);
       maxwell2.rotation.y = Math.PI + 0.3;
       scene.add(maxwell2);
@@ -187,7 +193,7 @@ export default function GameCanvas({
 
     // Bounce back when collide with walls
     const isSideCollision = () => {
-      return ball.position.x - 3 < -50 || ball.position.x + 3 > 50;
+      return ball.position.x - 3 < -80 || ball.position.x + 3 > 80;
     };
 
     const checkCollisionWith = (paddle) => {
@@ -253,12 +259,14 @@ export default function GameCanvas({
       }
     };
     render();
+    renderer.domElement.addEventListener("mousemove", movement);
+    renderer.domElement.style.cursor = "none";
   }, [gameStart]);
 
   return (
-      <canvas
-        className="mx-auto border-8 border-[#ff4081]"
-        id="myThreeJsCanvas"
-      />
+    <canvas
+      className="mx-auto border-8 border-white rounded-lg"
+      id="myThreeJsCanvas"
+    />
   );
 }
