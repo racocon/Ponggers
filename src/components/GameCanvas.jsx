@@ -12,36 +12,6 @@ export default function GameCanvas({
     const scene = new THREE.Scene();
     scene.background = new THREE.Color("#74b9ff");
 
-    const movement = (model, paddle) => {
-      // window.onkeydown = (e) => {
-      //   switch (e.key) {
-      //     case "ArrowLeft":
-      //       {
-      //         (host ? paddle.position.x > -70 : paddle.position.x < 70) &&
-      //           ((model.position.x += host ? -2.5 : 2.5),
-      //           (paddle.position.x += host ? -2.5 : 2.5));
-      //       }
-      //       break;
-      //     case "ArrowRight":
-      //       {
-      //         (host ? paddle.position.x < 70 : paddle.position.x > -70) &&
-      //           ((model.position.x += host ? 2.5 : -2.5),
-      //           (paddle.position.x += host ? 2.5 : -2.5));
-      //       }
-      //       break;
-      //     default:
-      //       break;
-      //   }
-      // };
-
-      window.onmousemove = (e) => {
-        var mouseX = e.clientX;
-        model.position.x = paddle.position.x = host
-          ? -((width - mouseX) / width) * 100 + 50
-          : ((width - mouseX) / width) * 100 - 50;
-      };
-    };
-
     // Load grass texture
     const grassTexture = new THREE.TextureLoader().load("../assets/grass.png");
     grassTexture.wrapS = THREE.RepeatWrapping;
@@ -128,9 +98,8 @@ export default function GameCanvas({
     // Paddle mesh
     const paddleGeometry = new THREE.BoxGeometry(28, 4, 4);
     const paddleMaterial = new THREE.MeshBasicMaterial({
-      // opacity: 0,
-      // transparent: true,
-      color: 0xc23616,
+      opacity: 0,
+      transparent: true,
     });
 
     const paddle1 = new THREE.Mesh(paddleGeometry, paddleMaterial);
@@ -249,6 +218,17 @@ export default function GameCanvas({
       checkOutOfBounds();
     };
 
+    function movement(model, paddle) {
+      // Use mouse to move paddle
+      canvas.onmousemove = (e) => {
+        var mouseX = e.clientX;
+
+        model.position.x = paddle.position.x = host
+          ? -((width - mouseX) / width) * 100 + 50
+          : ((width - mouseX) / width) * 100 - 50;
+      };
+    }
+
     const render = () => {
       // Render when game starts
       if (gameStart) {
@@ -259,8 +239,8 @@ export default function GameCanvas({
       }
     };
     render();
-    renderer.domElement.addEventListener("mousemove", movement);
-    renderer.domElement.style.cursor = "none";
+    // canvas.addEventListener("mousemove", movement);
+    canvas.style.cursor = "none";
   }, [gameStart]);
 
   return (
