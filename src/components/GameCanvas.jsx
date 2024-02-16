@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
@@ -7,154 +7,186 @@ export default function GameCanvas({
   setPlayer2,
   gameStart,
   host,
+  conn
 }) {
+  const scene = useRef(null);
+  const grassTexture = useRef(null);
+  const fenceTexture = useRef(null);
+  const camera = useRef(null);
+  const canvas = useRef(null);
+  const renderer = useRef(null);
+  const ambientLight = useRef(null);
+  const spotLight = useRef(null);
+  const baseGeometry = useRef(null);
+  const baseMaterial = useRef(null);
+  const grass = useRef(null);
+  const wallGeometry = useRef(null);
+  const wallMaterial = useRef(null);
+  const wallRight = useRef(null);
+  const wallLeft = useRef(null);
+  const ballGeometry = useRef(null);
+  const ballMaterial = useRef(null);
+  const ball = useRef(null);
+  const paddleGeometry = useRef(null);
+  const paddleMaterial = useRef(null);
+  const paddle1 = useRef(null);
+  const paddle2 = useRef(null);
+  const maxwell = useRef(null);
+  const maxwell2 = useRef(null);
+  const gltfLoader = useRef(null);
+  const dx = useRef(0);
+  const dz = useRef(1);
+
   useEffect(() => {
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color("#74b9ff");
+    scene.current = new THREE.Scene();
+    scene.current.background = new THREE.Color("#74b9ff");
 
     // Load grass texture
-    const grassTexture = new THREE.TextureLoader().load("../assets/grass.png");
-    grassTexture.wrapS = THREE.RepeatWrapping;
-    grassTexture.wrapT = THREE.RepeatWrapping;
-    grassTexture.repeat.set(2, 2);
+    grassTexture.current = new THREE.TextureLoader().load("../assets/grass.png");
+    grassTexture.current.wrapS = THREE.RepeatWrapping;
+    grassTexture.current.wrapT = THREE.RepeatWrapping;
+    grassTexture.current.repeat.set(2, 2);
 
     // Load fence texture
-    const fenceTexture = new THREE.TextureLoader().load(
+    fenceTexture.current = new THREE.TextureLoader().load(
       "../assets/picketfence.png"
     );
-    fenceTexture.wrapS = THREE.RepeatWrapping;
-    fenceTexture.wrapT = THREE.RepeatWrapping;
-    fenceTexture.repeat.set(3, 1);
+    fenceTexture.current.wrapS = THREE.RepeatWrapping;
+    fenceTexture.current.wrapT = THREE.RepeatWrapping;
+    fenceTexture.current.repeat.set(3, 1);
 
     // Set game window size
     const width = window.innerWidth * 0.9;
     const height = window.innerHeight * 0.8;
 
     // Set camera position
-    const camera = new THREE.PerspectiveCamera(60, width / height, 1, 1000);
+    camera.current = new THREE.PerspectiveCamera(60, width / height, 1, 1000);
 
     if (host) {
       // Set Player 1 camera
-      camera.position.set(0, 70, 96);
-      camera.lookAt(0, 10, 10);
+      camera.current.position.set(0, 70, 96);
+      camera.current.lookAt(0, 10, 10);
     } else if (!host) {
       // Set Player 2 camera
-      camera.position.set(0, 70, -146);
-      camera.lookAt(0, -50, 20);
+      camera.current.position.set(0, 70, -146);
+      camera.current.lookAt(0, -50, 20);
     }
 
-    const canvas = document.getElementById("myThreeJsCanvas");
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
+    canvas.current = document.getElementById("myThreeJsCanvas");
+    renderer.current = new THREE.WebGLRenderer({
+      canvas: canvas.current,
       antialias: true,
     });
-    renderer.setSize(width, height);
-    document.body.appendChild(renderer.domElement);
+    renderer.current.setSize(width, height);
+    document.body.appendChild(renderer.current.domElement);
 
     // Set lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 2);
-    ambientLight.castShadow = true;
-    scene.add(ambientLight);
+    ambientLight.current = new THREE.AmbientLight(0xffffff, 2);
+    ambientLight.current.castShadow = true;
+    scene.current.add(ambientLight.current);
 
-    const spotLight = new THREE.SpotLight(0xffffff, 1);
-    spotLight.castShadow = true;
-    spotLight.position.set(0, 64, 32), scene.add(spotLight);
+    spotLight.current = new THREE.SpotLight(0xffffff, 1);
+    spotLight.current.castShadow = true;
+    spotLight.current.position.set(0, 64, 32), scene.current.add(spotLight.current);
 
     // Floor object
-    const baseGeometry = new THREE.PlaneGeometry(400, 200);
-    const baseMaterial = new THREE.MeshBasicMaterial({
-      map: grassTexture,
+    baseGeometry.current = new THREE.PlaneGeometry(400, 200);
+    baseMaterial.current = new THREE.MeshBasicMaterial({
+      map: grassTexture.current,
       side: THREE.DoubleSide,
     });
-    const grass = new THREE.Mesh(baseGeometry, baseMaterial);
-    scene.add(grass);
-    grass.rotation.x = Math.PI / 2;
-    grass.position.set(0, -6, -25);
+    grass.current = new THREE.Mesh(baseGeometry.current, baseMaterial.current);
+    scene.current.add(grass.current);
+    grass.current.rotation.x = Math.PI / 2;
+    grass.current.position.set(0, -6, -25);
 
     // Wall object
-    const wallGeometry = new THREE.PlaneGeometry(200, 100);
-    const wallMaterial = new THREE.MeshBasicMaterial({
-      map: fenceTexture,
+    wallGeometry.current = new THREE.PlaneGeometry(200, 100);
+    wallMaterial.current = new THREE.MeshBasicMaterial({
+      map: fenceTexture.current,
       side: THREE.DoubleSide,
       //  transparent: true, opacity: 0.5,
       alphaTest: 0.5,
     });
-    const wallRight = new THREE.Mesh(wallGeometry, wallMaterial);
-    const wallLeft = new THREE.Mesh(wallGeometry, wallMaterial);
-    scene.add(wallRight);
-    scene.add(wallLeft);
-    wallRight.rotation.y = Math.PI / 2;
-    wallRight.position.set(80, 0, -25);
-    wallLeft.rotation.y = Math.PI / 2;
-    wallLeft.position.set(-80, 0, -25);
+    wallRight.current = new THREE.Mesh(wallGeometry.current, wallMaterial.current);
+    wallLeft.current = new THREE.Mesh(wallGeometry.current, wallMaterial.current);
+    scene.current.add(wallRight.current);
+    scene.current.add(wallLeft.current);
+    wallRight.current.rotation.y = Math.PI / 2;
+    wallRight.current.position.set(80, 0, -25);
+    wallLeft.current.rotation.y = Math.PI / 2;
+    wallLeft.current.position.set(-80, 0, -25);
 
     // Ball object
-    const ballGeometry = new THREE.SphereGeometry(3, 16, 8);
-    const ballMaterial = new THREE.MeshToonMaterial({ color: 0xc23616 });
-    const ball = new THREE.Mesh(ballGeometry, ballMaterial);
-    scene.add(ball);
-    ball.position.set(0, 0, 0);
+    ballGeometry.current = new THREE.SphereGeometry(3, 16, 8);
+    ballMaterial.current = new THREE.MeshToonMaterial({ color: 0xc23616 });
+    ball.current = new THREE.Mesh(ballGeometry.current, ballMaterial.current);
+    scene.current.add(ball.current);
+    ball.current.position.set(0, 0, 0);
 
     // Paddle mesh
-    const paddleGeometry = new THREE.BoxGeometry(28, 4, 4);
-    const paddleMaterial = new THREE.MeshBasicMaterial({
+    paddleGeometry.current = new THREE.BoxGeometry(28, 4, 4);
+    paddleMaterial.current = new THREE.MeshBasicMaterial({
       opacity: 0,
       transparent: true,
     });
 
-    const paddle1 = new THREE.Mesh(paddleGeometry, paddleMaterial);
-    const paddle2 = new THREE.Mesh(paddleGeometry, paddleMaterial);
+    paddle1.current = new THREE.Mesh(paddleGeometry.current, paddleMaterial.current);
+    paddle2.current = new THREE.Mesh(paddleGeometry.current, paddleMaterial.current);
 
     // Load Maxwell model
-    let maxwell;
-    const gltfLoader = new GLTFLoader();
+    gltfLoader.current = new GLTFLoader();
 
-    gltfLoader.load("../assets/maxwell/scene.gltf", (gltf) => {
-      maxwell = gltf.scene;
+    gltfLoader.current.load("../assets/maxwell/scene.gltf", (gltf) => {
+      if (maxwell.current) scene.current.remove(maxwell.current);
+      maxwell.current = gltf.scene;
 
-      scene.add(maxwell);
-      scene.add(paddle1);
+      scene.current.add(maxwell.current);
+      scene.current.add(paddle1.current);
 
       // Player 1 Maxwell
-      maxwell.position.set(-2, -5, 50);
-      paddle1.position.set(0, 0, 43);
-      maxwell.rotation.y = Math.PI - 0.3;
+      maxwell.current.position.set(-2, -5, 50);
+      paddle1.current.position.set(0, 0, 43);
+      maxwell.current.rotation.y = Math.PI - 0.3;
 
       // Player 2 Maxwell
-      const maxwell2 = maxwell.clone();
-      maxwell2.position.set(2, -5, -100);
-      paddle2.position.set(0, 0, -93);
-      maxwell2.rotation.y = Math.PI + 0.3;
-      scene.add(maxwell2);
-      scene.add(paddle2);
+      if (maxwell2.current) scene.current.remove(maxwell2.current);
+      maxwell2.current = maxwell.current.clone();
+      maxwell2.current.position.set(2, -5, -100);
+      paddle2.current.position.set(0, 0, -93);
+      maxwell2.current.rotation.y = Math.PI + 0.3;
+      scene.current.add(maxwell2.current);
+      scene.current.add(paddle2.current);
 
       if (host) {
-        movement(maxwell, paddle1);
+        movement(maxwell.current, paddle1.current);
+        console.log("Host");
       } else if (!host) {
-        movement(maxwell2, paddle2);
+        movement(maxwell2.current, paddle2.current);
+        console.log("Client");
       }
     });
 
     // Ball movement stuff
-    let dx = 0;
-    let dz = 1;
+    // let dx = 0;
+    // let dz = 1;
 
     const startBallMovement = () => {
       var direction = Math.random() > 0.5 ? -1 : 1;
-      ball.$velocity = {
-        x: dx,
-        z: direction * dz,
+      ball.current.$velocity = {
+        x: dx.current,
+        z: direction * dz.current,
       };
-      ball.$stopped = false;
+      ball.current.$stopped = false;
     };
 
     const updateBallPosition = () => {
-      ball.position.z += dz;
-      ball.position.x += dx;
+      ball.current.position.z += dz.current;
+      ball.current.position.x += dx.current;
 
       // Adds arc to ball's flight
-      ball.position.y =
-        -(((ball.position.z - 20) * (ball.position.z + 70)) / 100) + 30;
+      ball.current.position.y =
+        -(((ball.current.position.z - 20) * (ball.current.position.z + 70)) / 100) + 30;
 
       // var myMessage = new Message(null, ball.position.x, ball.position.z, null);
       // send(myMessage);
@@ -162,17 +194,17 @@ export default function GameCanvas({
 
     // Bounce back when collide with walls
     const isSideCollision = () => {
-      return ball.position.x - 3 < -80 || ball.position.x + 3 > 80;
+      return ball.current.position.x - 3 < -80 || ball.current.position.x + 3 > 80;
     };
 
     const checkCollisionWith = (paddle) => {
-      if (Math.abs(ball.position.z - paddle.position.z) <= 1) {
+      if (Math.abs(ball.current.position.z - paddle.position.z) <= 1) {
         if (
-          ball.position.z + 3 >= paddle.position.z &&
+          ball.current.position.z + 3 >= paddle.position.z &&
           isBallAlignedWithPaddle(paddle)
         ) {
-          dz *= -1;
-          dx = (ball.position.x - paddle.position.x) / 15;
+          dz.current *= -1;
+          dx.current = (ball.current.position.x - paddle.position.x) / 15;
         }
       }
     };
@@ -180,67 +212,111 @@ export default function GameCanvas({
     const isBallAlignedWithPaddle = (paddle) => {
       var halfPaddleWidth = 28 / 2,
         paddleX = paddle.position.x,
-        ballX = ball.position.x;
+        ballX = ball.current.position.x;
       return (
         ballX > paddleX - halfPaddleWidth && ballX < paddleX + halfPaddleWidth
       );
     };
 
     const reset = () => {
-      ball.position.set(0, 0, 0);
-      dx = 0;
-      ball.$stopped = true;
+      ball.current.position.set(0, 0, 0);
+      dx.current = 0;
+      ball.current.$stopped = true;
     };
 
     const checkOutOfBounds = () => {
-      if (ball.position.z < -130) {
+      if (ball.current.position.z < -130) {
         setPlayer1((prev) => prev + 1);
         reset();
-      } else if (ball.position.z > 80) {
+      } else if (ball.current.position.z > 80) {
         setPlayer2((prev) => prev + 1);
         reset();
       }
     };
 
     const processBallMovement = () => {
-      if (ball.$stopped) {
+      if (ball.current.$stopped) {
         startBallMovement();
       }
 
       updateBallPosition();
 
       if (isSideCollision()) {
-        dx *= -1;
+        dx.current *= -1;
       }
 
-      checkCollisionWith(paddle1);
-      checkCollisionWith(paddle2);
-      checkOutOfBounds();
+      checkCollisionWith(paddle1.current);
+      checkCollisionWith(paddle2.current);
+
+      // Send the new ball position to the client
+      if (conn) {
+        conn.send({
+          type: "ballPosition",
+          data: {x: ball.current.position.x, y: ball.current.position.y, z: ball.current.position.z}
+        });
+      }
     };
 
     function movement(model, paddle) {
       // Use mouse to move paddle
-      canvas.onmousemove = (e) => {
+      canvas.current.onmousemove = (e) => {
         var mouseX = e.clientX;
 
         model.position.x = paddle.position.x = host
           ? -((width - mouseX) / width) * 100 + 50
           : ((width - mouseX) / width) * 100 - 50;
+        if (conn) {
+          conn.send({
+            type: "move",
+            data: paddle.position.x
+          });
+        }
       };
     }
 
     const render = () => {
       // Render when game starts
       if (gameStart) {
-        processBallMovement();
+        if (host) {
+          processBallMovement();
+          checkOutOfBounds();
+        }
         window.requestAnimationFrame(render);
 
-        renderer.render(scene, camera);
+        renderer.current.render(scene.current, camera.current);
       }
     };
     render();
     // canvas.addEventListener("mousemove", movement);
-    canvas.style.cursor = "none";
+    canvas.current.style.cursor = "none";
+
+    conn.on("data", function (data) {
+      if (data.type === "move") {
+        if (host) {
+          maxwell2.current.position.x = paddle2.current.position.x = data.data
+        } else {
+          maxwell.current.position.x = paddle1.current.position.x = data.data
+        }
+      }
+      if (!host && data.type === "ballPosition") {
+        ball.current.position.x = data.data.x;
+        ball.current.position.y = data.data.y;
+        ball.current.position.z = data.data.z;
+        if (ball.current.position.z < -130) {
+          console.log("Player 1 scored!")
+          setPlayer1((prev) => prev + 1);
+        } else if (ball.current.position.z > 80) {
+          setPlayer2((prev) => prev + 1);
+        }
+      }
+    });
+
+    // Clean up all event listeners and canvas
+    return () => {
+      canvas.current.removeEventListener("mousemove", movement);
+      canvas.current.style.cursor = "auto";
+      conn.off("data");
+    };
   }, [gameStart]);
 
   return (

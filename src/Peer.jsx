@@ -51,6 +51,14 @@ useEffect(() => {
       setHost(false);
       setGameStart(true);
     });
+    conn.on("data", function (data) {
+      console.log("Data recieved");
+      conn.send("Connection Established");
+    });
+    conn.on("close", function () {
+      console.log("Connection Lost");
+      conn = null;
+    });
   };
 
   /*
