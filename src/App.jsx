@@ -1,5 +1,5 @@
 import "./App.css";
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import GameCanvas from "./components/GameCanvas";
 import ScoreDisplay from "./components/ScoreDisplay";
 
@@ -16,7 +16,8 @@ function App() {
   const [gameStart, setGameStart] = useState(false);
   const [host, setHost] = useState(null);
 
-  const peer = new Peer();
+  const connRef = useRef(null);
+  const peer = useRef(null);
 
   const [lastPeerId, setLastPeerId] = useState(null);
 
@@ -24,8 +25,14 @@ function App() {
    * START OF PEER STUFF
    */
   useEffect(() => {
+    if (host === null) return;
+    peer.current = new Peer({
+      host: "1.peerjs.com",
+      secure: true,
+    })
+
     if (host) {
-      peer.on("open", (id) => {
+      peer.current.on("open", (id) => {
         if (peerId === null) {
           setPeerId(id);
           console.log("Received null id from peer open");
@@ -36,15 +43,17 @@ function App() {
 
         console.log("My peer ID is: " + id);
       });
+
+      peer.current.on("connection", (conn) => {
+        setGameStart(true);
+
+        console.log("P1 Successfully connected to: " + conn.peer);
+
+        connRef.current = conn;
+
+        ready(conn);
+      });
     }
-
-    peer.on("connection", (conn) => {
-      setGameStart(true);
-
-      console.log("P1 Successfully connected to: " + conn.peer);
-
-      ready(conn);
-    });
   }, [host]);
 
   /*
@@ -52,10 +61,6 @@ function App() {
    */
   function ready(conn) {
     console.log("Ready to go");
-    conn.on("data", function (data) {
-      console.log("Data recieved");
-      conn.send("Connection Established");
-    });
     conn.on("close", function () {
       console.log("Connection Lost");
       conn = null;
@@ -63,12 +68,19 @@ function App() {
   }
 
   const join = (input) => {
-    var conn = peer.connect(input);
+    console.log("Joining")
+    var conn = peer.current.connect(input);
 
     conn.on("open", () => {
       console.log("P2 Successfully connected to: " + conn.peer);
 
+      connRef.current = conn;
+
       setGameStart(true);
+    });
+    conn.on("close", function () {
+      console.log("Connection Lost");
+      conn = null;
     });
   };
 
@@ -158,10 +170,8 @@ function App() {
             setPlayer1={setPlayer1}
             setPlayer2={setPlayer2}
             gameStart={gameStart}
-            setGameStart={setGameStart}
             host={host}
-            peerId={peerId}
-            setPeerId={setPeerId}
+            conn={connRef.current ? connRef.current : null}
           />
         </div>
       )}
